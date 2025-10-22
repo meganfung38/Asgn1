@@ -1,12 +1,17 @@
 package assignment_01;
 import javax.swing.*;
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 // component: controls all user interaction
 
 
 public class FrameController {
+
+    // logger
+    private static final Logger logger = Logger.getLogger(FrameController.class.getName());
 
     // interactive components
     private final JFrame mainFrame;
@@ -52,12 +57,14 @@ public class FrameController {
 
             currFolder = chooser.getSelectedFile();  // selected folder
             statusBar.setStatus("Opened Folder: " +  currFolder.getName());  // update status bar
+            logger.info("Opened Folder: " +  currFolder.getAbsolutePath());
 
             // collect java files
             File[] files = currFolder.listFiles((dir, name) -> name.endsWith(".java"));
 
             if (files == null || files.length == 0) {  // empty or no java files
                 statusBar.setStatus("No .java files found");  // update status bar
+                logger.info("No .java files found in " + currFolder.getAbsolutePath());
                 filePanel.updateFileList(new String[0]);  // no files to show in scrollable file list
             } else {  // java files exist
                 String[] fileNames = new String[files.length];  // array for file names
@@ -70,6 +77,7 @@ public class FrameController {
 
         } else {  // cancel
             statusBar.setStatus("Open Folder Cancelled");  // update status bar
+            logger.info("Open Folder Cancelled");
         }
 
     }
@@ -78,6 +86,7 @@ public class FrameController {
 
         try {
             statusBar.setStatus("Analyzing " + file.getName());  // update status bar
+            logger.info("Analyzing " + file.getName());
 
             // get metrics to display on CanvasPanel
             int complexity = fileAnalyzer.complexityMetric(file);  // number of line
@@ -88,8 +97,10 @@ public class FrameController {
             canvasPanel.updateMetrics(complexity, size, overall);
 
             statusBar.setStatus("Analyzed " + file.getName());  // update status bar
+            logger.info("Analyzed " + file.getName() + " line count: " + complexity + " control statements: " + size + " overall: " + overall);
         } catch (IOException e) {  // update status if something goes wrong
             statusBar.setStatus("Error analyzing " + file.getName() + ". Error Message: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error analyzing " + file.getName(), e);
         }
 
     }
